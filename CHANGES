@@ -1,0 +1,88 @@
+Sun May 09 2010 -
+	* Released dgcmodem-1.13.
+
+Sun May 09 2010 -
+	* Improved compatibility with various kernels and distributions.
+
+Thu Mar 25 2010 -
+	* Released dgcmodem-1.12.
+
+Thu Mar 25 2010 -
+	* Added USB ID 17EF:7000 for Lenovo.
+
+Wed Oct 21 2009 -
+	* Released dgcmodem-1.11.
+
+Wed Oct 21 2009 -
+	* Improved compatibility with various kernels and distributions.
+
+Wed Apr 29 2009 -
+	* Released dgcmodem-1.10.
+
+Wed Apr 29 2009 -
+	* Improved compatibility with various kernels and distributions.
+
+Thu Dec 18 2008 -
+	* Released dgcmodem-1.09.
+
+Thu Dec 18 2008 -
+	* Improved compatibility with various kernels and distributions.
+
+Tue Sep 09 2008 -
+	* Released dgcmodem-1.08.
+
+Tue Sep 09 2008 -
+	* Improved compatibility with various kernels and distributions.
+
+Fri Jul 18 2008 -
+	* Released dgcmodem-1.07.
+
+Fri Jul 18 2008 -
+	* Improved compatibility with various kernels and distributions.
+
+Fri Jun 20 2008 -
+	* Released dgcmodem-1.06.
+
+Fri Jun 20 2008 -
+	* Improved compatibility with various kernels and distributions.
+
+Thu May 22 2008 -
+	* Released dgcmodem-1.05.
+
+Thu May 22 2008 -
+	* Improved compatibility with various kernels and distributions.
+
+Mon Mar 24 2008 -
+	* Released dgcmodem-1.04.
+
+Mon Mar 24 2008 -
+	* Improved compatibility with newer kernels and distributions.
+	* Added PNPID for Harley2 USB.
+
+Fri Oct 19 2007 -
+	* Released dgcmodem-1.03.
+
+Thu Oct 11 2007 -
+	* Released dgcmodem-1.02.
+
+Thu Oct 11 2007 -
+	* Added support for x86_64 architecture.
+	* Improved compatibility with newer kernels and distributions.
+
+Tue Jun 05 2007 -
+	* Released dgcmodem-1.01.
+
+Tue Jun 05 2007 -
+	* Added PNPID for ACF Zoom Harley USB.
+
+Thu May 31 2007 -
+	* Released dgcmodem-1.00.
+
+Mon May 07 2007 -
+	* Released dgcmodem-0.91beta.
+
+Mon May 07 2007 -
+	* Added additional PnP IDs.
+
+Mon Apr 30 2007 -
+	* Released dgcmodem-0.90beta.

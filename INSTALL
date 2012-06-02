@@ -1,0 +1,124 @@
+Please see the README file for general information.
+
+BEFORE INSTALLING
+
+Remove any old DGC modem drivers, either manually or by
+running "rpm -e dgcmodem" or "make uninstall" if using the
+RPM or tar versions of this package respectively.
+
+
+INSTALLATION INSTRUCTIONS
+
+If your Linux distribution supports the RPM Package Manager,
+it is easiest to install the binary RPM package with METHOD A.
+If your system is based on Debian (DPKG), METHOD B is for you.
+METHOD C is for distributions without RPM or DPKG support,
+or those who prefer not to use packages.
+
+If you obtained the driver as a ".zip" file, extract it
+first with "unzip <filename>.zip".
+
+
+METHOD A: BINARY RPM PACKAGE (*.{arch}.rpm)
+
+If you have obtained the driver package in RPM format:
+
+1. install the rpm with "rpm -i dgcmodem-{version}.{arch}.rpm"
+
+2. if necessary, run "dgcconfig" to complete the installation, or
+to change your modem's configuration.
+
+If you need to rebuild the generic RPM from source, you
+can get the TAR package and run: "rpmbuild -tb dgcmodem-{version}.tar.gz"
+(if rpmbuild is not found, you might have to install the rpm-build
+package or if you have an older RPM version, try "rpm --rebuild ...").
+If you want a pre-compiled package for the currently running kernel,
+you can try "make rpmprecomp" in the top directory.
+
+
+METHOD B: DEBIAN PACKAGE (*.deb)
+
+If you have obtained the driver package in DEBIAN format:
+
+1. install the package with "dpkg -i dgcmodem_{version}_{arch}.deb",
+if apt-get or some other tool hasn't already done it for you.
+
+2. if necessary, run "dgcconfig" to complete the installation,
+or to change your modem's configuration.
+
+If you need to rebuild the Debian generic package from source, you can
+get the TAR package, and from the top directory run: "make debdist".
+A pre-compiled DEB package for the currently running kernel can be
+built using "make debprecomp" instead.
+
+
+METHOD C: TAR PACKAGE (*.tar.gz)
+
+If you have obtained the driver package in tar format:
+
+1. extract the package with "tar -xzf dgcmodem-{version}.tar.gz"
+
+2. change to the package directory with "cd dgcmodem-{version}"
+
+3. run "make install" from the top of the package directory.
+
+4. run "dgcconfig" to complete the installation and configure your modem.
+
+(Alternatively to this whole procedure you may generate RPMS from the tar
+package using rpmbuild -ta dgcmodem-{version}.tar.gz")
+
+
+AFTER INSTALLATION
+
+If an error occurred during installation, please see the section
+'REPORTING PROBLEMS' below.
+
+Once the modem is installed and configured, you may access it
+as /dev/ttyACM0. Additionally, you can use it via the symbolic link
+/dev/modem (equivalent to ttyACM0). If you have more than one ACM modem,
+the second will be available as /dev/ttyACM1, the third as /dev/ttyACM2
+and so forth.
+
+Please review the permissions on the device nodes with "ls -l" to ensure
+that they are adequate for your system.
+
+The "dgcconfig" command can be used to change certain modem configuration
+options or recompile (generic packages only) the kernel modules after
+installation.  Run "dgcconfig --help" for usage information.
+
+
+MANUALLY UNLOADING THE DRIVERS
+
+The modem drivers can be manually unloaded using the "dgcstop" command.
+
+
+USING ALTERNATIVE VENDOR AND DEVICE IDS
+
+If your modem uses a chipset supported by the drivers but isn't
+recognized by the driver, please contact modem.support@linuxant.com.
+
+
+REMOVING THE DRIVER
+
+If for any reason you wish to un-install the DGC drivers from your
+system, simply run the "dgcconfig --uninstall" command in a root shell.
+
+
+MORE INFORMATION AND HELP
+
+If you require assistance or need more information, go to:
+              http://www.linuxant.com/drivers
+
+Conexant Systems neither distributes nor maintains this package.
+PLEASE DO NOT CONTACT CONEXANT REGARDING THIS SOFTWARE!!!
+
+
+REPORTING PROBLEMS
+
+Additional problem reports or patches may be sent to:
+	modem.support@linuxant.com
+
+Enclosing the output of "dgcconfig --dumpdiag" and the last call status
+information if pertinent (see above) in your report can greatly
+facilitate problem resolution.
+
