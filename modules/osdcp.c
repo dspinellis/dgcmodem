@@ -28,7 +28,8 @@
 #define DCP_SAMPLE_SIZE sizeof(INT16)
 
 static struct list_head dcp_instance_list = LIST_HEAD_INIT(dcp_instance_list);
-static spinlock_t dcp_lock = SPIN_LOCK_UNLOCKED;
+static DEFINE_SPINLOCK(dcp_lock);
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
 #ifdef FOUND_CLASS_SIMPLE
 static struct class_simple *dcp_class;

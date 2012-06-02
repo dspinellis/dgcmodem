@@ -260,7 +260,7 @@ dgcUsbRxDone(struct urb *urb
 	}
 }
 
-static spinlock_t dgcusbdcp_lock = SPIN_LOCK_UNLOCKED;
+static DEFINE_SPINLOCK(dgcusbdcp_lock);
 static unsigned int dgcusbdcp_instance_bitmap;
 #define DGCUSBDCP_MAX_INSTANCES (sizeof(dgcusbdcp_instance_bitmap)*8)
 
