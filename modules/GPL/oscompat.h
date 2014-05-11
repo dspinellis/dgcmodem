@@ -68,7 +68,7 @@ extern "C"
 
 #include "osuniqredef.h"
 
-#include <linux/version.h>
+#include <generated/uapi/linux/version.h>
 #ifdef FOUND_LINUX_CONFIG
 #include <linux/config.h>
 #endif
@@ -122,7 +122,7 @@ static int errno;
 #include <linux/spinlock.h>
 #include <linux/list.h>
 #include <asm/bitops.h>
-#include <asm/system.h>
+#include <asm/switch_to.h>
 
 /*
  * New proposed "bottom half" handlers:
@@ -336,10 +336,6 @@ struct circ_buf {
 
 #ifndef __exit
 #define __exit
-#endif
-
-#ifndef __devexit_p
-#define __devexit_p(x) x
 #endif
 
 #ifndef DECLARE_MUTEX
@@ -626,7 +622,7 @@ typedef u32 pm_message_t;
 #endif
 
 #ifdef FOUND_TOUCH_ATIME
-#define TOUCH_ATIME(file) touch_atime((file)->f_vfsmnt,(file)->f_dentry);
+#define TOUCH_ATIME(file) touch_atime((file)->f_dentry);
 #else
 #define TOUCH_ATIME(file) update_atime((file)->f_dentry->d_inode);
 #endif

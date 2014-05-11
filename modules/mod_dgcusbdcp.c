@@ -128,8 +128,8 @@ typedef struct tagUSBOSHAL {
 	HANDLE hDcp;
 } USBOSHAL, *PUSBOSHAL;
 
-//#undef dbg
-//#define dbg(format, arg...) { printk(KERN_DEBUG __FILE__ ": " format "\n" , ## arg); }
+#undef dbg
+#define dbg(format, arg...) { printk(KERN_DEBUG __FILE__ ": " format "\n" , ## arg); }
 
 #ifndef info
 #define info(format, arg...) printk(KERN_INFO KBUILD_MODNAME ": " format "\n" , ## arg)
@@ -139,12 +139,16 @@ typedef struct tagUSBOSHAL {
 #define warn(format, arg...) printk(KERN_WARNING KBUILD_MODNAME ": " format "\n" , ## arg)
 #endif
 
+#ifndef err
+#define err(format, arg...) { printk(KERN_ERR __FILE__ ": " format "\n" , ## arg); }
+#endif
+
 #if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void * __devinit dgcusbdcp_probe(struct usb_device *pUsbDevice, unsigned int ifnum, const struct usb_device_id *id);
-static void __devexit dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr);
+static void * dgcusbdcp_probe(struct usb_device *pUsbDevice, unsigned int ifnum, const struct usb_device_id *id);
+static void dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr);
 #else
-static int __devinit dgcusbdcp_probe(struct usb_interface *intf, const struct usb_device_id *id);
-static void __devexit dgcusbdcp_disconnect(struct usb_interface *intf);
+static int dgcusbdcp_probe(struct usb_interface *intf, const struct usb_device_id *id);
+static void dgcusbdcp_disconnect(struct usb_interface *intf);
 #endif
 
 static struct usb_driver dgcusbdcp_driver = {
@@ -154,7 +158,7 @@ static struct usb_driver dgcusbdcp_driver = {
     .name           = "dcgusbdcp",
     .id_table       = dgcusbdcp_tbl,
     .probe          = dgcusbdcp_probe,
-    .disconnect     = __devexit_p(dgcusbdcp_disconnect),
+    .disconnect     = dgcusbdcp_disconnect,
 };
 
 #if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
@@ -301,11 +305,11 @@ typedef struct {
 } udwa_t;
 
 #if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void * __devinit dgcusbdcp_probe(
+static void * dgcusbdcp_probe(
 	struct usb_device *pUsbDevice, unsigned int ifnum,
 	const struct usb_device_id *id)
 #else
-static int __devinit dgcusbdcp_probe(struct usb_interface *intf,
+static int dgcusbdcp_probe(struct usb_interface *intf,
 	const struct usb_device_id *id)
 #endif
 {
@@ -588,9 +592,9 @@ static void revert_udwa(void)
 }
 
 #if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void __devexit dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr)
+static void dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr)
 #else
-static void __devexit dgcusbdcp_disconnect(struct usb_interface *intf)
+static void dgcusbdcp_disconnect(struct usb_interface *intf)
 #endif
 {
 #if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )

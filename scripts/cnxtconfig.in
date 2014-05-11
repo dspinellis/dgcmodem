@@ -854,7 +854,7 @@ right_version_kernel_tree()
 		if [ -d "${KERNELSRC}/include/generated" ]; then
 			right_version_kernel_tree_file_name="${KERNELSRC}/include/generated/utsrelease.h"
 		else
-			right_version_kernel_tree_file_name="${KERNELSRC}/include/linux/version.h"
+			right_version_kernel_tree_file_name="${KERNELSRC}/include/generated/uapi/linux/version.h"
 		fi
 	fi
 
@@ -1125,7 +1125,7 @@ recompile_modules()
 
 	if ! files_present \
 		"${gen_hdr_dir}/autoconf.h" \
-		"${KERNELSRC}/include/linux/version.h"; then
+		"${KERNELSRC}/include/generated/uapi/linux/version.h"; then
 		echo ""
 		echo "WARNING: missing file ${missing_file}"
 		suspect_tree=true
@@ -1168,7 +1168,7 @@ recompile_modules()
 				rm -f "${KERNELSRC}/include/linux/.config" \
 						"${KERNELSRC}/include/generated/autoconf.h" \
 						"${KERNELSRC}/include/linux/autoconf.h" \
-						"${KERNELSRC}/include/linux/version.h"
+						"${KERNELSRC}/include/generated/uapi/linux/version.h"
 				if ! cp -p /boot/config-${OSKERNVERS} "${KERNELSRC}/.config"; then
 					echo ""
 					echo "Unable to copy files to temporary kernel tree"
@@ -1198,9 +1198,9 @@ recompile_modules()
 				rm -f "${KERNELSRC}/include/linux/.config" \
 						"${KERNELSRC}/include/generated/autoconf.h" \
 						"${KERNELSRC}/include/linux/autoconf.h" \
-						"${KERNELSRC}/include/linux/version.h"
+						"${KERNELSRC}/include/generated/uapi/linux/version.h"
 				if ! cp -p /boot/vmlinuz.autoconf.h "${KERNELSRC}/include/linux/autoconf.h" || \
-					! cp -p /boot/vmlinuz.version.h "${KERNELSRC}/include/linux/version.h"; then
+					! cp -p /boot/vmlinuz.version.h "${KERNELSRC}/include/generated/uapi/linux/version.h"; then
 					echo ""
 					echo "Unable to copy files to temporary kernel tree"
 					remove_temp_kernel_tree
@@ -1217,7 +1217,7 @@ recompile_modules()
 	fi
 
 	# are we ok now?
-	if [ ! -f "${KERNELSRC}/include/linux/version.h" \
+	if [ ! -f "${KERNELSRC}/include/generated/uapi/linux/version.h" \
 			-o ! -f "${gen_hdr_dir}/autoconf.h" ]; then
 		remove_temp_kernel_tree
 		kernelrebuild_instructions
@@ -2384,7 +2384,7 @@ dump_diagnostics()
 			done
 
 			dump_file /lib/modules/${OSKERNVERS}/build/.config
-			dump_file /lib/modules/${OSKERNVERS}/build/include/linux/version.h
+			dump_file /lib/modules/${OSKERNVERS}/build/include/generated/uapi/linux/version.h
 			dump_file /lib/modules/${OSKERNVERS}/build/include/generated/autoconf.h
 			dump_file /lib/modules/${OSKERNVERS}/build/include/linux/autoconf.h
 			dump_file /lib/modules/${OSKERNVERS}/build/include/linux/autoconf-up.h

@@ -4,7 +4,7 @@
 # NOTE: The use and distribution of this software is governed by the terms in
 # the file LICENSE, which is included in the package. You must read this and
 # agree to these terms before using or distributing this software.
-# 
+#
 ifeq ($(KBUILD_BUILTIN)$(KBUILD_MODULES)$(KBUILD_CHECKSRC),)
 TOP := ..
 else
@@ -45,7 +45,7 @@ endif
 # Configure location of current 2.4 kernel source directory for compiling
 CNXT_KERNELSRC := /lib/modules/$(shell uname -r)/build
 
-KERNELSRC_EXISTS := $(shell test -r ${CNXT_KERNELSRC}/include/linux/version.h && echo yes || echo no)
+KERNELSRC_EXISTS := $(shell test -r ${CNXT_KERNELSRC}/include/generated/uapi/linux/version.h && echo yes || echo no)
 
 DEBIAN_SYSTEM := $(shell test -f /etc/debian_version && echo yes || echo no)
 
@@ -55,7 +55,7 @@ CNXT_KERNELSRC := /usr/src/kernel-headers-$(shell uname -r)
 else
 CNXT_KERNELSRC := /usr/src/linux
 endif
-KERNELSRC_EXISTS := $(shell test -r ${CNXT_KERNELSRC}/include/linux/version.h && echo yes || echo no)
+KERNELSRC_EXISTS := $(shell test -r ${CNXT_KERNELSRC}/include/generated/uapi/linux/version.h && echo yes || echo no)
 endif
 
 UTS_FILE := $(shell for hdr in linux/utsrelease.h generated/utsrelease.h linux/version.h; do test -r "${CNXT_KERNELSRC}/include/$${hdr}" && echo "${CNXT_KERNELSRC}/include/$${hdr}" && exit 0; done; exit 1)
@@ -464,4 +464,3 @@ mod_usbcd2.o: cnxthw_common.c cnxthwusb_common.c
 
 mod_hda.o: cnxthw_common.c cnxthwhda_common.c
 endif
-
