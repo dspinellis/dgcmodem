@@ -622,9 +622,9 @@ typedef u32 pm_message_t;
 #endif
 
 #ifdef FOUND_TOUCH_ATIME
-#define TOUCH_ATIME(file) touch_atime((file)->f_dentry);
+#define TOUCH_ATIME(file) touch_atime((file)->f_path.dentry);
 #else
-#define TOUCH_ATIME(file) update_atime((file)->f_dentry->d_inode);
+#define TOUCH_ATIME(file) update_atime((file)->f_path.dentry->d_inode);
 #endif
 
 #ifdef FOUND_PCI_GET_DEVICE
