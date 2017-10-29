@@ -202,7 +202,7 @@ dcp_read(struct file * file, char * buf, size_t nbytes, loff_t *ppos)
 	ret = dp - buf;
 
 	if(ret) {
-	    TOUCH_ATIME(file);
+	    file_accessed(file);
 	}
     }
 
