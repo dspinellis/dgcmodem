@@ -64,7 +64,7 @@ sleep(1); # give udev time to create DCP device
 $retry=10;
 while(!sysopen DCPDEV, "$dcpdev", (O_RDONLY | O_NDELAY | O_NONBLOCK)) {
 	if(--$retry<=0){
-		die "$0: can't open $dcpdev";
+		die "$0: can't open $dcpdev: $!";
 	}
 	sleep(1); # give udev more time to create DCP device
 }
