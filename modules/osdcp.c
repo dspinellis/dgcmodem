@@ -16,9 +16,7 @@
 #include <linux/devfs_fs_kernel.h>
 #endif
 #include <linux/kmod.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
 #include <linux/device.h>
-#endif
 
 #ifdef USE_DCP
 
@@ -30,12 +28,10 @@
 static struct list_head dcp_instance_list = LIST_HEAD_INIT(dcp_instance_list);
 static DEFINE_SPINLOCK(dcp_lock);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
 #ifdef FOUND_CLASS_SIMPLE
 static struct class_simple *dcp_class;
 #else
 static struct class *dcp_class;
-#endif
 #endif
 
 typedef struct {
@@ -43,10 +39,6 @@ typedef struct {
     spinlock_t lock;
 
     POS_DEVNODE	pDevNode;
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-    devfs_handle_t devfs_handle;
-#endif
 
     struct list_head units;
 
@@ -298,11 +290,7 @@ call_dcp_daemon(int instNum, char *action)
 	argv[1] = devbuf + sizeof("CNXTDCPDEVICE");
 	argv[2] = 0;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-	i = call_usermodehelper(argv[0], argv, envp);
-#else
 	i = call_usermodehelper(argv[0], argv, envp, 1);
-#endif
 	if(i && (i != SIGTERM)) {
 	    printk(KERN_ERR"%s: %s returned %d\n", __FUNCTION__, argv[0], i);
 	}
@@ -357,9 +345,6 @@ void DcpDestroy  (HANDLE hDcp)
     }
     spin_unlock_irqrestore(&pDcp->lock, flags);
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-    devfs_unregister(pDcp->devfs_handle);
-#else
 #ifdef FOUND_DEVFS
     {
 	char buf[32];
@@ -367,11 +352,8 @@ void DcpDestroy  (HANDLE hDcp)
 	devfs_remove(buf);
     }
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
     if (!IS_ERR(dcp_class))
         CLASS_DEVICE_DESTROY(dcp_class, MKDEV(dcpmajor, pDcp->pDevNode->hwInstNum));
-#endif
-#endif
 
     kfree(pDcp);
 }
@@ -411,22 +393,12 @@ HANDLE DcpCreate(HANDLE hDevNode)
     spin_unlock_irqrestore(&dcp_lock, flags);
 
     snprintf(buf, sizeof(buf), CNXTTARGET"dcp%d", pDcp->pDevNode->hwInstNum);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-    pDcp->devfs_handle = devfs_register(NULL, buf, DEVFS_FL_DEFAULT,
-	    dcpmajor, pDcp->pDevNode->hwInstNum,
-	    S_IFCHR | S_IRUSR | S_IWUSR,
-	    &dcp_fops,
-	    NULL);
-#else
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
     if (!IS_ERR(dcp_class)) {
 	CLASS_DEVICE_CREATE(dcp_class, MKDEV(dcpmajor, pDcp->pDevNode->hwInstNum), pDcp->pDevNode->hwDevLink, CNXTTARGET"dcp%d", pDcp->pDevNode->hwInstNum);
 	}
-#endif
 #ifdef FOUND_DEVFS
     devfs_mk_cdev(MKDEV(dcpmajor, pDcp->pDevNode->hwInstNum),
 		  S_IFCHR | S_IRUSR | S_IWUSR, buf);
-#endif
 #endif
 
     call_dcp_daemon(pDcp->pDevNode->hwInstNum, "start");
@@ -511,10 +483,8 @@ void DcpCallback(HANDLE hDcp, PVOID pData, UINT32 dwSize)
 __shimcall__
 void OsDcpExit(void)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
     if (!IS_ERR(dcp_class))
 	    CLASS_DESTROY(dcp_class);
-#endif
     if(dcpmajor > 0)
 	unregister_chrdev(dcpmajor, CNXTTARGET"dcp");
 }
@@ -536,7 +506,6 @@ int OsDcpInit(void)
 	return dcpmajor;
     }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,2)
     dcp_class = CLASS_CREATE(THIS_MODULE, CNXTTARGET"dcp");
     if (IS_ERR(dcp_class)) {
 		printk(KERN_ERR "%s: cannot create simple class (%ld)\n", __FUNCTION__, PTR_ERR(dcp_class));
@@ -544,7 +513,6 @@ int OsDcpInit(void)
 			unregister_chrdev(dcpmajor, CNXTTARGET"dcp");
 	    return PTR_ERR(dcp_class);
     }
-#endif
     return 0;
 }
 

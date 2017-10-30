@@ -143,16 +143,11 @@ typedef struct tagUSBOSHAL {
 #define err(format, arg...) { printk(KERN_ERR __FILE__ ": " format "\n" , ## arg); }
 #endif
 
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void * dgcusbdcp_probe(struct usb_device *pUsbDevice, unsigned int ifnum, const struct usb_device_id *id);
-static void dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr);
-#else
 static int dgcusbdcp_probe(struct usb_interface *intf, const struct usb_device_id *id);
 static void dgcusbdcp_disconnect(struct usb_interface *intf);
-#endif
 
 static struct usb_driver dgcusbdcp_driver = {
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,20) ) && defined(FOUND_USB_DRIVER_OWNER)
+#if defined(FOUND_USB_DRIVER_OWNER)
     .owner          = THIS_MODULE,
 #endif
     .name           = "dcgusbdcp",
@@ -161,11 +156,7 @@ static struct usb_driver dgcusbdcp_driver = {
     .disconnect     = dgcusbdcp_disconnect,
 };
 
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-#define CFGDESC(x) x
-#else
 #define CFGDESC(x) desc.x
-#endif
 
 static int
 dgcUsbWrite(PUSBOSHAL pUsbOsHal, unsigned char *data, size_t len)
@@ -198,7 +189,7 @@ dgcUsbWrite(PUSBOSHAL pUsbOsHal, unsigned char *data, size_t len)
 
 static void
 dgcUsbRxDone(struct urb *urb
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) ) && defined(FOUND_USB_COMPLETE_PT_REGS)
+#if defined(FOUND_USB_COMPLETE_PT_REGS)
     , struct pt_regs *regs
 #endif
 )
@@ -255,11 +246,7 @@ dgcUsbRxDone(struct urb *urb
 	DcpCallback(pUsbOsHal->hDcp, pUsbOsHal->dx_buf, d - pUsbOsHal->dx_buf);
 
 	urb->dev = pUsbOsHal->pUsbDevice;
-	if ((status = usb_submit_urb(urb
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
-					, GFP_ATOMIC
-#endif
-					)) < 0) {
+	if ((status = usb_submit_urb(urb, GFP_ATOMIC)) < 0) {
 		dbg("submit(rx_urb) status %d", status);
 	}
 }
@@ -304,24 +291,16 @@ typedef struct {
 	int *orig_extralen_p;
 } udwa_t;
 
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void * dgcusbdcp_probe(
-	struct usb_device *pUsbDevice, unsigned int ifnum,
-	const struct usb_device_id *id)
-#else
 static int dgcusbdcp_probe(struct usb_interface *intf,
 	const struct usb_device_id *id)
-#endif
 {
 	unsigned long flags;
     int i;
     struct usb_interface *pUsbDiagInterface;
     POS_DEVNODE pDevNode = NULL;
     PUSBOSHAL pUsbOsHal = NULL;
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
     struct usb_device *pUsbDevice = interface_to_usbdev(intf);
     __u8 ifnum = intf->altsetting->desc.bInterfaceNumber;
-#endif
 
     dbg("%s: pUsbDevice=%p ifnum=%d id=%p altsetting=%p endpoint=%p", __FUNCTION__, pUsbDevice, ifnum, id, intf->altsetting, intf->altsetting->endpoint);
 //    dbg("%s: NAME=%s %s", __FUNCTION__, pUsbDevice->dev.bus_id, pUsbDevice->dev.driver->name);
@@ -333,32 +312,7 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 
 	if(pUsbDevice->actconfig->CFGDESC(bConfigurationValue) != 2 && (ifnum == 0)) {
 		dbg("%s: current config=%d, setting to 2...", __FUNCTION__, pUsbDevice->actconfig->CFGDESC(bConfigurationValue));
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,19) )
 		i = usb_driver_set_configuration(pUsbDevice, 2);
-#elif ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
-	{
-		char *argv[4], *envp[3];
-		char cmdbuf[120];
-
-		sprintf(cmdbuf, "(sleep 1; echo 2 > /sys/bus/usb/drivers/%s/%s/bConfigurationValue) </dev/null >/dev/null 2>&1 &", pUsbDevice->dev.driver->name, pUsbDevice->dev.bus_id);
-
-		envp [0] = "HOME=/";
-		envp [1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
-		envp [2] = 0;
-
-		argv[0] = "/bin/sh";
-		argv[1] = "-c";
-		argv[2] = cmdbuf;
-		argv[3] = 0;
-
-		i = call_usermodehelper(argv[0], argv, envp, 1);
-		if(i && (i != SIGTERM)) {
-	    		printk(KERN_ERR"%s: %s returned %d\n", __FUNCTION__, argv[0], i);
-		}
-	}
-#else
-		i = usb_set_configuration(pUsbDevice, 2);
-#endif
 		dbg("%s: usb_driver_set_configuration returned %d", __FUNCTION__, i);
 		goto exit;
 	}
@@ -399,11 +353,7 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 		argv[2] = cmdbuf;
 		argv[3] = 0;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
-		i = call_usermodehelper(argv[0], argv, envp);
-#else
 		i = call_usermodehelper(argv[0], argv, envp, 1);
-#endif
 		if(i && (i != SIGTERM)) {
 	    		printk(KERN_ERR"%s: %s returned %d\n", __FUNCTION__, argv[0], i);
 		}
@@ -462,9 +412,7 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 
     memset(pDevNode, 0, sizeof(*pDevNode));
 	pDevNode->hwDev = pUsbOsHal;
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
 	pDevNode->hwDevLink = &pUsbDevice->dev;
-#endif
 	pDevNode->hwModule = THIS_MODULE;
 
 	pDevNode->hwInstNum = -1;
@@ -486,11 +434,7 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 		goto exit;
 	}
 
-	pUsbOsHal->rx_urb = usb_alloc_urb(0
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
-			, GFP_KERNEL
-#endif
-			);
+	pUsbOsHal->rx_urb = usb_alloc_urb(0, GFP_KERNEL);
 	if(!pUsbOsHal->rx_urb) {
 		err ("cannot allocate rx_urb");
 		goto exit;
@@ -499,11 +443,7 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 	usb_fill_bulk_urb(pUsbOsHal->rx_urb, pUsbDevice, pUsbOsHal->DiagInPipe,
 			pUsbOsHal->rx_buf, sizeof(pUsbOsHal->rx_buf), dgcUsbRxDone, pUsbOsHal);
 
-	if ((i = usb_submit_urb(pUsbOsHal->rx_urb
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
-					, GFP_ATOMIC
-#endif
-					)) < 0) {
+	if ((i = usb_submit_urb(pUsbOsHal->rx_urb , GFP_ATOMIC)) < 0) {
 		err("submit(rx_urb) status %d", i);
 	}
 
@@ -515,22 +455,14 @@ static int dgcusbdcp_probe(struct usb_interface *intf,
 		goto exit;
 	}
 
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-	return pDevNode;
-#else
     usb_set_intfdata (intf, pDevNode);
     return 0;
-#endif
 
 exit:
 
 	if(pUsbOsHal) {
 		if(pUsbOsHal->rx_urb) {
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
 			usb_kill_urb(pUsbOsHal->rx_urb);
-#else
-			usb_unlink_urb(pUsbOsHal->rx_urb);
-#endif
 			usb_free_urb(pUsbOsHal->rx_urb);
 		}
 
@@ -551,16 +483,11 @@ exit:
 	if(pUsbOsHal) {
 		kfree(pUsbOsHal);
 	}
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-    return NULL;
-#else
     return -ENODEV;
-#endif
 }
 
 static void revert_udwa(void)
 {
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18) )
 	struct list_head *tmp;
 	struct list_head *tmp2;
 	udwa_t *udwa;
@@ -588,20 +515,11 @@ static void revert_udwa(void)
 		spin_lock_irqsave(&dgcusbdcp_lock, flags);
 	}
 	spin_unlock_irqrestore(&dgcusbdcp_lock, flags);
-#endif
 }
 
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-static void dgcusbdcp_disconnect(struct usb_device *pUsbDevice, void *ptr)
-#else
 static void dgcusbdcp_disconnect(struct usb_interface *intf)
-#endif
 {
-#if ( LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0) )
-    POS_DEVNODE pDevNode = ptr;
-#else
     POS_DEVNODE pDevNode = usb_get_intfdata(intf);
-#endif
     PUSBOSHAL pUsbOsHal;
 	unsigned long flags;
 
@@ -615,19 +533,13 @@ static void dgcusbdcp_disconnect(struct usb_interface *intf)
     pUsbOsHal = pDevNode->hwDev;
     pDevNode->hwDev = NULL;
 
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
     usb_set_intfdata (intf, NULL);
-#endif
 
     if(!pUsbOsHal)
 		return;
 
 	if(pUsbOsHal->rx_urb) {
-#if ( LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0) )
 		usb_kill_urb(pUsbOsHal->rx_urb);
-#else
-		usb_unlink_urb(pUsbOsHal->rx_urb);
-#endif
 		usb_free_urb(pUsbOsHal->rx_urb);
 	}
 
